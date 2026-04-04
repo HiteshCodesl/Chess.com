@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  
+}
+
+model User {
+  id          String   @id @default(uuid())
+  username    String   @unique
+  email       String   @unique
+  password    String
+  profilePic  String?    
+  createdAt   DateTime @default(now())
+  gameAsBlack Game[]   @relation("BlackPlayer")
+  gameAsWhite Game[]   @relation("WhitePlayer")
+}
+
+model Game {
+  id        String     @id @default(uuid())
+  whiteId   String
+  blackId   String
+  white     User       @relation("WhitePlayer", fields: [whiteId], references: [id])
+  black     User       @relation("BlackPlayer", fields: [blackId], references: [id])
+  createdAt DateTime   @default(now())
+  status    GameStatus
+  winnerId  String
+  moves     Move[]
+}
+
+model Move {
+  id     String   @id @default(uuid())
+  from   String
+  to     String
+  time   DateTime
+  gameId String
+  game   Game     @relation(fields: [gameId], references: [id])
+}
+
+enum GameStatus {
+  WAITING
+  ACTIVE
+  FINISHED
+}
