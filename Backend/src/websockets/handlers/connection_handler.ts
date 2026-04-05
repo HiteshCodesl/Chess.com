@@ -13,7 +13,7 @@ export let globalJoiningQueue: User[] = [];
 export function joinRoomInit(socket: WebSocket, payload: any) {
     const { id, name } = payload.data;
 
-    const user2 = {
+    const currentUser = {
         id,
         name,
         socket
@@ -28,15 +28,15 @@ export function joinRoomInit(socket: WebSocket, payload: any) {
     }
 
     else if (globalJoiningQueue.length > 0) {
-        const user1 = globalJoiningQueue[0];
+        const waitingUser = globalJoiningQueue[0];
 
-        if (!user1) {
+        if (!waitingUser) {
             console.log("User Not Found")
             return;
         }
 
-        createGame(user1, user2);
+        createGame(waitingUser, currentUser);
 
-        globalJoiningQueue = globalJoiningQueue.filter(x => x.id !== user1?.id);
+        globalJoiningQueue = globalJoiningQueue.filter(x => x.id !== waitingUser?.id);
     }
 }
