@@ -9,17 +9,15 @@ type GameRoom = {
 
 const games = new Map<string, GameRoom>();
 
-//storing all the game in Memory
-export async function roomManager(player1: User, player2: User, gameId: string) {
+export async function roomManager(blackPlayer: User, whitePlayer: User, gameId: string) {
     const chess = new Chess();
 
     games.set(gameId, {
         gameId,
-        players: [player1, player2],
+        players: [blackPlayer, whitePlayer],
         chess
     })
 }
-  
 
 export const getGame = (gameId: string) => {
     return games.get(gameId);
