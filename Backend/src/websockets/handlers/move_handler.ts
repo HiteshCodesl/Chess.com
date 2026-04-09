@@ -3,7 +3,7 @@ import { getGame } from "./room_handler.js";
 import type WebSocket from "ws";
 
 export async function moveHandler(from: string, to: string, gameId: string, socket: WebSocket) {
-
+    try{
     const game = getGame(gameId);
     let winner: string;
 
@@ -13,10 +13,6 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
     }
 
     const chess = game.chess;
-
-    console.log("game in Move handler", game);
-
-    console.log("Chess from Move Handler", chess);
 
     const blackPlayerSocket = game.players[0]!.socket;
     const whitePlayerSocket = game.players[1]!.socket;
@@ -52,8 +48,6 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
         }))
     })
 
-    console.log("date", new Date().getTime());
-
     await prisma.move.create({
         data: {
             from,
@@ -62,6 +56,7 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
             gameId: gameId
         }
     })
+
 
     if (chess.isGameOver()) {
         const turn = chess.turn();
@@ -103,16 +98,9 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
         })
     }
 
-
-
+  }catch(err){
+    console.log("Invalid Move");
+    return;
+  }
 }
 
-
-//validate move
-//is this users move time
-
-//update board
-//push the move
-
-//check the game is over
-//send the updated game to both the players
