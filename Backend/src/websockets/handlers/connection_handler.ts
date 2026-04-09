@@ -28,15 +28,14 @@ export function joinRoomInit(socket: WebSocket, payload: any) {
     }
 
     else if (globalJoiningQueue.length > 0) {
-        const waitingUser = globalJoiningQueue[0];
-
+        const waitingUser = globalJoiningQueue.shift();
+        //Removes first element and deletes it.
+        
         if (!waitingUser) {
             console.log("User Not Found")
             return;
         }
 
         createGame(waitingUser, currentUser);
-
-        globalJoiningQueue = globalJoiningQueue.filter(x => x.id !== waitingUser?.id);
     }
 }
