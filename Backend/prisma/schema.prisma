@@ -9,7 +9,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  
 }
 
 model User {
@@ -17,22 +16,23 @@ model User {
   username    String   @unique
   email       String   @unique
   password    String
-  profilePic  String?    
+  profilePic  String?
   createdAt   DateTime @default(now())
   gameAsBlack Game[]   @relation("BlackPlayer")
   gameAsWhite Game[]   @relation("WhitePlayer")
 }
 
 model Game {
-  id        String     @id @default(uuid())
-  whiteId   String
-  blackId   String
-  white     User       @relation("WhitePlayer", fields: [whiteId], references: [id])
-  black     User       @relation("BlackPlayer", fields: [blackId], references: [id])
-  createdAt DateTime   @default(now())
-  status    GameStatus
-  winnerId  String?
-  moves     Move[]
+  id            String     @id @default(uuid())
+  whiteId       String
+  blackId       String
+  white         User       @relation("WhitePlayer", fields: [whiteId], references: [id])
+  black         User       @relation("BlackPlayer", fields: [blackId], references: [id])
+  createdAt     DateTime   @default(now())
+  status        GameStatus
+  winnerId      String?
+  winningReason String
+  moves         Move[]
 }
 
 model Move {
@@ -48,4 +48,5 @@ enum GameStatus {
   WAITING
   ACTIVE
   FINISHED
+  DRAW
 }
