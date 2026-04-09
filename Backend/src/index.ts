@@ -1,5 +1,5 @@
-import express from "express"
-import cors from "cors"
+import express from "express";
+import cors from "cors";
 import { userRouter } from "./modules/User/user.js";
 import { gameRouter } from "./modules/Game/Game.js";
 

@@ -1,20 +1,26 @@
 import { WebSocketServer } from 'ws';
 import { joinRoomInit } from './handlers/connection_handler.js';
+import { moveHandler } from './handlers/move_handler.js';
 
-const wss = new WebSocketServer({ port: 8080 });
+export const webSocketServer = (server: any) => {
+
+const wss = new WebSocketServer({server})
 
 wss.on('connection', function connection(ws) {
   ws.on('error', console.error);
 
   ws.on('message', function message(data) {
-    
+
     const payload = JSON.parse(data.toString());
 
-    console.log("payload", payload);
-
-    joinRoomInit(ws, payload)
+    if (payload.type === "INIT_JOIN") {
+      joinRoomInit(ws, payload)   
+    }
+     else if (payload.type === "MOVE") {
+      moveHandler(payload.data.from, payload.data.to, payload.data.gameId, ws);
+    }
   });
 
-  ws.send('something');
 });
 
+}
