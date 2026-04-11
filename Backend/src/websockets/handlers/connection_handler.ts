@@ -19,14 +19,17 @@ export function joinRoomInit(socket: WebSocket, payload: any) {
         socket
     }
 
+    console.log("currentUser", currentUser);
+    console.log(globalJoiningQueue);
+
     if (globalJoiningQueue.length === 0) {
         globalJoiningQueue.push({
             id,
             name,
             socket
         })
+        console.log(globalJoiningQueue);
     }
-
     else if (globalJoiningQueue.length > 0) {
         const waitingUser = globalJoiningQueue.shift();
         //Removes first element and deletes it.
@@ -35,7 +38,7 @@ export function joinRoomInit(socket: WebSocket, payload: any) {
             console.log("User Not Found")
             return;
         }
-
+    
         createGame(waitingUser, currentUser);
     }
 }

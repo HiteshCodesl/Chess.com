@@ -31,7 +31,7 @@ model Game {
   createdAt     DateTime   @default(now())
   status        GameStatus
   winnerId      String?
-  winningReason String
+  winningReason String?
   moves         Move[]
 }
 
