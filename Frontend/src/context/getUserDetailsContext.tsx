@@ -24,13 +24,15 @@ function getUserDetails() {
         }
 
         const userDetails = async () => {
-            const response = await axios.get(`${import.meta.env.BACKEND_URL}/api/v1/user/me`, {
+            console.log("url", import.meta.env.VITE_BACKEND_URL);
+            console.log("token", token);
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/me`, {
                 headers: {
                     "Authorization": token
                 }
             })
-            console.log(response.data);
-            setUser(response.data);
+            console.log("user Data after fetching", response.data.data);
+            setUser(response.data.data);
         }
         userDetails();
         
