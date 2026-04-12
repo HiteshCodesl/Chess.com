@@ -22,7 +22,7 @@ export function SignupPage() {
         const navigate = useNavigate();
     
         const signupRequest = async() => {
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/signup`, {email, name, password});
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/signup`, {email, name, password});
             if(response){
                 const data  = response.data;
                 console.log(data);
@@ -32,7 +32,7 @@ export function SignupPage() {
     
     return (
         <div className="h-screen flex justify-center items-center">
-            <Card className="w-full max-w-sm ">
+            <Card className="w-full max-w-sm border">
                 <CardHeader>
                     <CardTitle>Login to your account</CardTitle>
                     <CardDescription>
@@ -82,7 +82,7 @@ export function SignupPage() {
                     </form>
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
-                    <Button onClick={signupRequest} type="submit" className="w-full">
+                    <Button onClick={signupRequest} type="submit" className="w-full" variant={'outline'}>
                         Signup
                     </Button>
                     <Link to={'/login'}>

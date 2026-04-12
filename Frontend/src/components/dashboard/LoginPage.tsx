@@ -22,12 +22,12 @@ export function LoginPage() {
 
     const loginRequest = async () => {
         try{
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/login`, { email, password });
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/user/login`, { email, password });
         if (response) {
             const token = response.data.token;
             console.log(token);
             localStorage.setItem('token', token)
-            navigate('/room')
+            navigate('/chess-board')
         }
         }catch(e){
             console.log(e);
@@ -36,7 +36,7 @@ export function LoginPage() {
 
     return (
         <div className="h-screen flex justify-center items-center">
-            <Card className="w-full max-w-sm">
+            <Card className="w-full max-w-sm border">
                 <CardHeader>
                     <CardTitle>Login to your Account</CardTitle>
                     <CardDescription>
@@ -74,7 +74,7 @@ export function LoginPage() {
                     </form>
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
-                    <Button onClick={loginRequest} type="submit" className="w-full">
+                    <Button onClick={loginRequest} type="submit" className="w-full" variant={'outline'}>
                         Login
                     </Button>
                     <Link to={'/Signup'}>
