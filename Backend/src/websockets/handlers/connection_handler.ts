@@ -1,12 +1,11 @@
-import { globalAgent } from "node:http";
-import type WebSocket from "ws";
+import WebSocket from "ws";
 import { createGame } from "./game_handler.js";
 
 export interface User {
     id: string,
     name: string,
     socket: WebSocket
-}[];
+};
 
 export let globalJoiningQueue: User[] = [];
 
@@ -36,6 +35,12 @@ export function joinRoomInit(socket: WebSocket, payload: any) {
         
         if (!waitingUser) {
             console.log("User Not Found")
+            return;
+        }
+
+        if(waitingUser.id === currentUser.id){
+            console.log("Same User");  
+            globalJoiningQueue.push(waitingUser);
             return;
         }
     
