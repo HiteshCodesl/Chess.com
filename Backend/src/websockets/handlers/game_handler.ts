@@ -15,13 +15,13 @@ export async function createGame(waitingUser: User, currentUser: User) {
     const gameId = createGame.id;
 
     currentUser.socket.send(JSON.stringify({
-        "event": "matchFound",
+        "event": "MATCH_FOUND",
         "gameId": gameId,
         "color": "black"
     }));
 
     waitingUser.socket.send(JSON.stringify({
-        "event": "matchFound",
+        "event": "MATCH_FOUND",
         "gameId": gameId,
         "color": "white"
     }));
