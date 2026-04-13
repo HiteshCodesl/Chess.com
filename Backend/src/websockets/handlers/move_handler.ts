@@ -41,7 +41,7 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
 
     game.players.forEach((player) => {
         player.socket.send(JSON.stringify({
-            "EVENT": "MOVE",
+            "event": "MOVE",
             from,
             to,
             fen: chess.fen()
@@ -64,7 +64,7 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
 
         game.players.forEach((player) => {
             player.socket.send(JSON.stringify({
-                "EVENT": "GAME_ENDED",
+                "event": "GAME_ENDED",
                 result: chess.isCheckmate() ? "CheckMate" : "Draw",
                 winner
             }))
