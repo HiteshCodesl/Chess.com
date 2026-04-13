@@ -1,29 +1,31 @@
-import { useEffect, useState } from "react"
+import React, { createContext, useEffect, useState } from "react";
 
-const WS_URL = 'ws://localhost:3000';
+export const SocketContext = createContext<WebSocket | null>(null);
 
-export const useSocketContext = () => {
-    const [socket, setSocket] = useState <WebSocket | null>(null);
+export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
+    const [socket, setSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
-        
-        const ws = new WebSocket(WS_URL);
-        
+        const ws = new WebSocket('ws://localhost:3000');
+
         ws.onopen = () => {
-            console.log("Ws Connected");
+            console.log("Websocket Connected");
             setSocket(ws);
         }
 
         ws.onclose = () => {
-            console.log("ws Disconnected");
-            setSocket(null);
-        }
-
-        return () => {
+            console.log("Websocket Disconnected");
             ws.close();
         }
 
+        return () => ws.close();
+
     }, [])
 
-    return socket;
+    return (
+        <SocketContext.Provider value={socket}>
+            {children}
+        </SocketContext.Provider>
+    )
+    
 }
