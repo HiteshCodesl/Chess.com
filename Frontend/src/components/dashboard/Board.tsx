@@ -1,57 +1,58 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Chess } from "chess.js"
-import { useSocketContext } from "../../context/useSocketContext";
+import { SocketContext } from "../../context/useSocketContext";
 import { toast } from "sonner";
 import Square from "./Square";
 
-const game = new Chess();
-
 function Board() {
-  const socket = useSocketContext();
-  const [board, setBoard] = useState(game.board());
+  const socket = useContext(SocketContext);
+  const [board, setBoard] = useState(() => new Chess().board());
   const [gameId, setGameId] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
 
   console.log("Inside the board");
-  console.log("Socket inside Board", socket);
+  console.log("GameId", gameId)
 
   useEffect(() => {
-      console.log("Inside useEffect");
-    
-    if(!socket){
-      console.log("websocket is not Availble")
-      return;
-    }
+  if (!socket) return;
+  console.log("Render Board", board);
 
-   socket.onmessage = (event) => {
-    console.log("Inside Message Handler in Board");
+  const handler = (event: MessageEvent) => {
     const message = JSON.parse(event.data);
 
-    console.log("Message from The Websocket", message);
-    if(message.type === "INIT_JOIN"){
-        game.reset();
-        setBoard([...game.board()]);
+    console.log("MESSAGE:", message);
+
+    if (message.event === "INIT_JOIN") {
+      const newGame = new Chess();
+      setBoard([...newGame.board()]);
     }
 
-    if(message.type === "matchfound"){
-      //send a notification
-      console.log(message);
+    if (message.event === "MATCH_FOUND") {
       setGameId(message.gameId);
-      toast(`Your color: ${message.color}`);
-      console.log(message.event);
+      toast(`Match Found, Your Color : ${message.color}`, {
+        position: "top-center",
+      });
     }
 
-    if(message.type === "MOVE"){
-      game.move({
-        from: message.from,
-        to: message.to
-      })
+    if (message.event === "MOVE") {
+      console.log("FEN:", message.fen);
 
-      setBoard([...game.board()]);
+      const newGame = new Chess(message.fen);
+      const newBoard = newGame.board();
+
+      console.log("NEW BOARD:", newBoard);
+
+      setBoard(newBoard.map(row => [...row]));
     }
+  };
 
-   }
-  }, [socket]);
+  socket.addEventListener("message", handler);
+
+  return () => {
+    socket.removeEventListener("message", handler);
+  };
+}, [socket]);
+
 
   function handleClick(square: string){
      if(!selected){
@@ -73,7 +74,7 @@ function Board() {
   }
 
   return (
-    <div className="grid grid-cols-8 w-[550px] h-[400px]">
+    <div className="grid grid-cols-8 w-[500px] h-[500px]">
       {board.map((row, i) =>
         row.map((square, j) => {
           const squareName =
