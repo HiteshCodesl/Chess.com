@@ -1,5 +1,7 @@
 import WebSocket from "ws";
 import { createGame } from "./game_handler.js";
+import { prisma } from "../../lib/prisma.js";
+import { JoinExistingGame, type Role } from "./joinExistingGame_handler.js";
 
 export interface User {
     id: string,
@@ -9,7 +11,7 @@ export interface User {
 
 export let globalJoiningQueue: User[] = [];
 
-export function joinRoomInit(socket: WebSocket, payload: any) {
+export async function joinRoomInit(socket: WebSocket, payload: any) {
     const { id, name } = payload.data;
 
     const currentUser = {
@@ -18,8 +20,34 @@ export function joinRoomInit(socket: WebSocket, payload: any) {
         socket
     }
 
-    console.log("currentUser", currentUser);
-    console.log(globalJoiningQueue);
+    //if server restated the game 
+    const findRunningGame = await prisma.game.findFirst({
+        where: {
+            status: 'ACTIVE',
+            OR: [
+                {blackId: id},
+                {whiteId: id}
+            ]
+        }
+    })
+
+    let role: Role;
+
+    if(findRunningGame){
+
+    if(findRunningGame.blackId === id){
+        role = 'blackPlayer';
+    }else if(findRunningGame.whiteId === id){
+        role = 'whitePlayer';
+    }else{
+        return;
+    }
+
+    const gameId = findRunningGame.id;
+
+    JoinExistingGame(gameId, role, currentUser);
+
+   }else{
 
     if (globalJoiningQueue.length === 0) {
         globalJoiningQueue.push({
@@ -30,8 +58,8 @@ export function joinRoomInit(socket: WebSocket, payload: any) {
         console.log(globalJoiningQueue);
     }
     else if (globalJoiningQueue.length > 0) {
-        const waitingUser = globalJoiningQueue.shift();
         //Removes first element and deletes it.
+        const waitingUser = globalJoiningQueue.shift();
         
         if (!waitingUser) {
             console.log("User Not Found")
@@ -45,5 +73,6 @@ export function joinRoomInit(socket: WebSocket, payload: any) {
         }
     
         createGame(waitingUser, currentUser);
-    }
+     }
+   }
 }
