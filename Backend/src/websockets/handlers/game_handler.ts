@@ -10,7 +10,7 @@ export async function createGame(waitingUser: User, currentUser: User) {
         data: {
             blackId: currentUser.id,
             whiteId: waitingUser.id,
-            status: "WAITING",
+            status: "ACTIVE",
             fen: chess.fen()
         }
     })

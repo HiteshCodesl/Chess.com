@@ -30,7 +30,7 @@ model Game {
   white         User       @relation("WhitePlayer", fields: [whiteId], references: [id])
   black         User       @relation("BlackPlayer", fields: [blackId], references: [id])
   createdAt     DateTime   @default(now())
-  status        GameStatus
+  status        GameStatus @default(WAITING)
   winnerId      String?
   winningReason String?
   moves         Move[]

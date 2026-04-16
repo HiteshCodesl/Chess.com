@@ -30,8 +30,6 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
             return;
         }
 
-        
-
         const move = chess.move({
             from,
             to
@@ -63,7 +61,8 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
                 },
                 data: {
                     winnerId: chess.turn() === 'w' ? blackPlayerId : whitePlayerId,
-                    status: 'FINISHED'
+                    status: 'FINISHED',
+                    winningReason: 'checkmate'
                 }
             })
         }
