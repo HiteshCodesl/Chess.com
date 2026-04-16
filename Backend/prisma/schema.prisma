@@ -26,7 +26,7 @@ model Game {
   id            String     @id @default(uuid())
   whiteId       String
   blackId       String
-  fen           String?
+  fen           String?    
   white         User       @relation("WhitePlayer", fields: [whiteId], references: [id])
   black         User       @relation("BlackPlayer", fields: [blackId], references: [id])
   createdAt     DateTime   @default(now())

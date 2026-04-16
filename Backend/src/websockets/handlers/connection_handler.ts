@@ -4,9 +4,9 @@ import { prisma } from "../../lib/prisma.js";
 import { JoinExistingGame, type Role } from "./joinExistingGame_handler.js";
 
 export interface User {
-    id: string,
-    name: string,
-    socket: WebSocket
+    id: string;
+    name: string;
+    socket: WebSocket | null;
 };
 
 export let globalJoiningQueue: User[] = [];
@@ -44,8 +44,9 @@ export async function joinRoomInit(socket: WebSocket, payload: any) {
     }
 
     const gameId = findRunningGame.id;
+    const fen  = findRunningGame.fen ?? '';
 
-    JoinExistingGame(gameId, role, currentUser);
+    JoinExistingGame(gameId, role, currentUser, fen);
 
    }else{
 
