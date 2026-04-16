@@ -5,7 +5,7 @@ type UserType = User;
 
 export type Role = 'whitePlayer' | 'blackPlayer';
 
-export async function JoinExistingGame(gameId: string, role: Role, user: UserType) {
+export async function JoinExistingGame(gameId: string, role: Role, user: UserType, fen: string) {
     const game = getGame(gameId);
 
     if (!game) {
@@ -24,9 +24,12 @@ export async function JoinExistingGame(gameId: string, role: Role, user: UserTyp
 
     game.players[role] = user;
 
-    user.socket.send(JSON.stringify({
+    user.socket?.send(JSON.stringify({
         "event" : "MATCH_RESUMED",
         "gameId" : gameId,
-        "role": role
+        "role": role,
+        "fen": fen
     }))
+
+
 }
