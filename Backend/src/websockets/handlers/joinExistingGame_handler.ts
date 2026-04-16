@@ -29,7 +29,5 @@ export async function JoinExistingGame(gameId: string, role: Role, user: UserTyp
         "gameId" : gameId,
         "role": role,
         "fen": fen
-    }))
-
-
+   }))
 }

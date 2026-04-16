@@ -42,18 +42,26 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
             return;
         }
 
-        const blackandWhitePlayerSockets: WebSocket | null = game.players.whitePlayer.socket && game.players.blackPlayer.socket;
+        const players = [
+            game.players.whitePlayer,
+            game.players.blackPlayer
+        ]
+
+        if (players) {
+            console.log("Both socket are availble")
+        }
 
         if (chess.isGameOver()) {
             const turn = chess.turn();
             winner = turn === 'w' ? 'black' : 'white';
 
-            blackandWhitePlayerSockets?.send(JSON.stringify({
-                "event": "GAME_ENDED",
-                result: chess.isCheckmate() ? "CheckMate" : "Draw",
-                winner
-            }))
-
+            players.forEach((player) => {
+                player.socket?.send(JSON.stringify({
+                    "event": "GAME_ENDED",
+                    result: chess.isCheckmate() ? "CheckMate" : "Draw",
+                    winner
+                }))
+            })
 
             await prisma.game.update({
                 where: {
@@ -69,9 +77,11 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
 
         if (chess.isDraw()) {
 
-            blackandWhitePlayerSockets?.send(JSON.stringify({
-                result: 'Draw'
-            }))
+            players.forEach((player) => {
+                player.socket?.send(JSON.stringify({
+                    result: 'Draw'
+                }))
+            })
 
 
             await prisma.game.update({
@@ -84,24 +94,29 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
             })
         }
 
-        if(chess.isCheck()){
-            if(chess.isCheck())
-            blackandWhitePlayerSockets?.send(JSON.stringify({
-                "event": "CHECK"
-            }))
+        if (chess.isCheck()) {
+            if (chess.isCheck()) {
+                players.forEach((player) => {
+                    player.socket?.send(JSON.stringify({
+                        "event": "CHECK"
+                    }))
+                })
+            }
         }
-        
 
-        blackandWhitePlayerSockets?.send(JSON.stringify({
-            "event": "MOVE",
-            from,
-            to,
-            fen: chess.fen()
-        }));
+        players.forEach((player) => {
+            player.socket?.send(JSON.stringify({
+                "event": "MOVE",
+                from,
+                to,
+                fen: chess.fen()
+            }));
+        })
 
-    await prisma.$transaction([
 
-        prisma.move.create({
+
+
+        await prisma.move.create({
             data: {
                 from,
                 to,
@@ -110,18 +125,18 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
             }
         }),
 
-        prisma.game.update({
-           where: {
-             id: gameId
-           },
-           data: {
-            fen: chess.fen()
-           }
+        await prisma.game.update({
+            where: {
+                id: gameId
+            },
+            data: {
+                fen: chess.fen()
+            }
         })
-    ])
+
 
     } catch (err) {
-        console.log("Invalid Move");
+        console.log("Invalid Move", err);
         return;
     }
 }
