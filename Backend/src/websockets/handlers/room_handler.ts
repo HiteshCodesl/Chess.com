@@ -3,19 +3,25 @@ import type { User } from './connection_handler.js';
 
 type GameRoom = {
     gameId: string;
-    players: User[];
+    players: {
+        whitePlayer : User,
+        blackPlayer : User
+    }
     chess: Chess;
 };
 
 const games = new Map<string, GameRoom>();
 
-export async function roomManager(blackPlayer: User, whitePlayer: User, gameId: string) {
+export async function roomHandler(blackPlayer: User, whitePlayer: User, gameId: string) {
     const chess = new Chess();
-
+    
     games.set(gameId, {
         gameId,
-        players: [blackPlayer, whitePlayer],
-        chess
+        chess,
+        players : {
+        whitePlayer,
+        blackPlayer, 
+        }
     })
 }
 
