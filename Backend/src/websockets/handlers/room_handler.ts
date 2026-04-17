@@ -10,7 +10,7 @@ type GameRoom = {
     chess: Chess;
 };
 
-const games = new Map<string, GameRoom>();
+export const games = new Map<string, GameRoom>();
 
 export async function roomHandler(blackPlayer: User, whitePlayer: User, gameId: string) {
     const chess = new Chess();
