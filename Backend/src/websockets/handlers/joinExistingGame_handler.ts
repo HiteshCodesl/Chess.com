@@ -14,15 +14,13 @@ export async function JoinExistingGame(gameId: string, role: Role, user: UserTyp
     }
 
     if (role === 'blackPlayer') {
-        game.players.blackPlayer.socket === user.socket;
+        game.players.blackPlayer.socket = user.socket;
     } else if (role === 'whitePlayer') {
-        game.players.whitePlayer.socket === user.socket;
+        game.players.whitePlayer.socket = user.socket;
     } else {
         console.log("error", "You are not part of this game");
         return;
     }
-
-    game.players[role] = user;
 
     user.socket?.send(JSON.stringify({
         "event" : "MATCH_RESUMED",
