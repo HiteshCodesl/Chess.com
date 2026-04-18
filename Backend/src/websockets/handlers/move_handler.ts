@@ -32,13 +32,16 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
 
         const move = chess.move({
             from,
-            to
+            to,
+            promotion: "q"
         })
 
         console.log("Move", move);
 
         if (!move) {
-            console.log("Move not made");
+            socket.send(JSON.stringify({
+                event: "INVALID_MOVE"
+            }));
             return;
         }
 
@@ -52,56 +55,55 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
         }
 
         if (chess.isGameOver()) {
-            const turn = chess.turn();
-            winner = turn === 'w' ? 'black' : 'white';
+            if (chess.isCheckmate()) {
+                const turn = chess.turn();
+                winner = turn === 'w' ? 'black' : 'white';
 
-            players.forEach((player) => {
-                player.socket?.send(JSON.stringify({
-                    "event": "GAME_ENDED",
-                    result: chess.isCheckmate() ? "CheckMate" : "Draw",
-                    winner
-                }))
-            })
-
-            await prisma.game.update({
-                where: {
-                    id: gameId
-                },
-                data: {
-                    winnerId: chess.turn() === 'w' ? blackPlayerId : whitePlayerId,
-                    status: 'FINISHED',
-                    winningReason: 'checkmate'
-                }
-            })
-        }
-
-        if (chess.isDraw()) {
-
-            players.forEach((player) => {
-                player.socket?.send(JSON.stringify({
-                    result: 'Draw'
-                }))
-            })
-
-
-            await prisma.game.update({
-                where: {
-                    id: gameId
-                },
-                data: {
-                    status: "DRAW"
-                }
-            })
-        }
-
-        if (chess.isCheck()) {
-            if (chess.isCheck()) {
                 players.forEach((player) => {
                     player.socket?.send(JSON.stringify({
-                        "event": "CHECK"
+                        "event": "GAME_ENDED",
+                        result: chess.isCheckmate() ? "CheckMate" : "Draw",
+                        winner
                     }))
                 })
+
+                await prisma.game.update({
+                    where: {
+                        id: gameId
+                    },
+                    data: {
+                        winnerId: chess.turn() === 'w' ? blackPlayerId : whitePlayerId,
+                        status: 'FINISHED',
+                        winningReason: 'checkmate'
+                    }
+                })
+            } else if (chess.isDraw()) {
+
+                players.forEach((player) => {
+                    player.socket?.send(JSON.stringify({
+                        result: 'Draw'
+                    }))
+                })
+
+
+                await prisma.game.update({
+                    where: {
+                        id: gameId
+                    },
+                    data: {
+                        status: "DRAW"
+                    }
+                })
             }
+        }
+
+
+        if (chess.isCheck()) {
+            players.forEach((player) => {
+                player.socket?.send(JSON.stringify({
+                    "event": "CHECK"
+                }))
+            })
         }
 
         players.forEach((player) => {
@@ -109,7 +111,8 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
                 "event": "MOVE",
                 from,
                 to,
-                fen: chess.fen()
+                fen: chess.fen(),
+                turn: chess.turn()
             }));
         })
 
@@ -125,14 +128,14 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
             }
         }),
 
-        await prisma.game.update({
-            where: {
-                id: gameId
-            },
-            data: {
-                fen: chess.fen()
-            }
-        })
+            await prisma.game.update({
+                where: {
+                    id: gameId
+                },
+                data: {
+                    fen: chess.fen()
+                }
+            })
 
 
     } catch (err) {
