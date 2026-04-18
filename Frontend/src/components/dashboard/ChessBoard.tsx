@@ -17,7 +17,7 @@ function ChessBoard() {
 
       <div className="w-full max-w-6xl grid grid-cols-3 gap-6 p-6 justify-between">
 
-        <div className="col-span-2 bg-[#302f2c]">
+        <div className="col-span-2 bg-[#302f2c] items-center flex">
             <Board />
         </div>
 
