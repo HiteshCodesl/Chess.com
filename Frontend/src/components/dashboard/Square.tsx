@@ -7,7 +7,7 @@ function Square({ piece, square, onClick }: any) {
   return (
     <div
       onClick={() => onClick(square)}
-      className={`w-16 h-16 flex items-center justify-center text-5xl ${
+      className={`flex items-center justify-center text-5xl w-16 h-16 ${
         isBlack ? "bg-green-700" : "bg-white"
       }`}
     >
