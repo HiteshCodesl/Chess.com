@@ -7,7 +7,7 @@ export type Role = 'whitePlayer' | 'blackPlayer';
 
 export async function JoinExistingGame(gameId: string, role: Role, user: UserType, fen: string) {
     const game = getGame(gameId);
-
+    const chess = game?.chess;
     if (!game) {
         console.log("Game Not Found, Try Matchmaking")
         return;
@@ -26,6 +26,7 @@ export async function JoinExistingGame(gameId: string, role: Role, user: UserTyp
         "event" : "MATCH_RESUMED",
         "gameId" : gameId,
         "role": role,
+        "turn": chess?.turn(),
         "fen": fen
    }))
 }

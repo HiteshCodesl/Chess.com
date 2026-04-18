@@ -20,13 +20,15 @@ export async function createGame(waitingUser: User, currentUser: User) {
     currentUser.socket?.send(JSON.stringify({
         "event": "MATCH_FOUND",
         "gameId": gameId,
-        "color": "black"
+        "role": "blackPlayer",
+        "turn": chess.turn()
     }));
 
     waitingUser.socket?.send(JSON.stringify({
         "event": "MATCH_FOUND",
         "gameId": gameId,
-        "color": "white"
+        "role": "whitePlayer",
+        "turn": chess.turn()
     }));
 
     roomHandler(currentUser, waitingUser, gameId);

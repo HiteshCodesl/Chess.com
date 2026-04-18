@@ -59,6 +59,7 @@ export async function joinRoomInit(socket: WebSocket, payload: any) {
             } else if (findRunningGame.whiteId === id) {
                 role = 'whitePlayer';
             } else {
+                console.log("you are not part of this game");
                 return;
         }
 
@@ -68,7 +69,6 @@ export async function joinRoomInit(socket: WebSocket, payload: any) {
             
         } else {
             //player is disconnected
-
             JoinExistingGame(gameId, role, currentUser, fen);
         }
 
