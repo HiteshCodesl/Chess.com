@@ -8,10 +8,13 @@ function Board() {
   const socket = useContext(SocketContext);
   const [board, setBoard] = useState(() => new Chess().board());
   const [gameId, setGameId] = useState("");
+  const [game, setGame] = useState<Chess | null>(null);
+  const [playerRole, setPlayerRole] = useState<'w' | 'b'>();
   const [selected, setSelected] = useState<string | null>(null);
 
   console.log("Inside the board");
   console.log("GameId", gameId)
+  console.log("Current player Move", playerRole);
 
   useEffect(() => {
   if (!socket) return;
@@ -24,12 +27,27 @@ function Board() {
 
     if (message.event === "INIT_JOIN") {
       const newGame = new Chess();
-      setBoard([...newGame.board()]);
+      setGame(newGame);
+      setBoard(newGame.board());
+      setPlayerRole(message.turn);
+    }
+
+    if(message.event === "MATCH_RESUMED"){
+        const newGame = new Chess(message.fen);
+        setGameId(message.gameId);
+        setGame(newGame);
+        setPlayerRole(message.turn);
+      const newBoard = newGame.board();
+
+      console.log("NEW BOARD:", newBoard);
+      
+      setBoard(newGame.board());
     }
 
     if (message.event === "MATCH_FOUND") {
       setGameId(message.gameId);
-      toast(`Match Found, Your Color : ${message.color}`, {
+      setPlayerRole(message.turn);
+      toast(`Match Found, Your Role : ${message.role}`, {
         position: "top-center",
       });
     }
@@ -39,11 +57,13 @@ function Board() {
 
       const newGame = new Chess(message.fen);
       const newBoard = newGame.board();
+      setGame(newGame);
+      setPlayerRole(message.turn);
 
-      console.log("NEW BOARD:", newBoard);
-
-      setBoard(newBoard.map(row => [...row]));
-    }
+      console.log("NEW BOARD:", newGame);
+      
+      setBoard(newBoard.map(row => [...row]));  
+ }
   };
 
   socket.addEventListener("message", handler);
@@ -55,10 +75,22 @@ function Board() {
 
 
   function handleClick(square: string){
+    if(!game) return;
      if(!selected){
-      setSelected(square);
+        setSelected(square);
       return;
      }
+
+     const turn = game.turn();
+
+  if (
+    (turn === "w" && playerRole !== "w") ||
+    (turn === "b" && playerRole !== "b")
+  ) {
+    toast("Not your turn");
+    setSelected(null);
+    return;
+  }
 
      socket?.send(JSON.stringify({
         "type" :  "MOVE",
@@ -66,7 +98,6 @@ function Board() {
           "from" : selected,
           "to" : square,
           "gameId": gameId,
-          "ws": socket
         }
      }))
 
@@ -85,7 +116,7 @@ function Board() {
               key={squareName}
               piece={square}
               square={squareName}
-              onClick={handleClick}
+              onClick={handleClick} 
             />
           );
         })
