@@ -1,3 +1,4 @@
+import { time } from "console";
 import { prisma } from "../../lib/prisma.js";
 import { getGame } from "./room_handler.js";
 import type WebSocket from "ws";
@@ -13,6 +14,8 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
         }
 
         const chess = game.chess;
+
+        game.clock.turn = chess.turn();
 
         const blackPlayerSocket = game.players.blackPlayer.socket;
         const whitePlayerSocket = game.players.whitePlayer.socket;
@@ -36,6 +39,7 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
             promotion: "q"
         })
 
+
         console.log("Move", move);
 
         if (!move) {
@@ -45,14 +49,20 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
             return;
         }
 
+        const now = Date.now();
+
+        const timeStamp = now - game.clock.lastMoveTime;
+
+        if (chess.turn() === 'w') {
+            game.clock.whiteTime -= timeStamp; 
+        } else {
+            game.clock.blackTime -= timeStamp;
+        }
+
         const players = [
             game.players.whitePlayer,
             game.players.blackPlayer
         ]
-
-        if (players) {
-            console.log("Both socket are availble")
-        }
 
         if (chess.isGameOver()) {
             if (chess.isCheckmate()) {
@@ -77,6 +87,7 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
                         winningReason: 'checkmate'
                     }
                 })
+
             } else if (chess.isDraw()) {
 
                 players.forEach((player) => {
@@ -84,7 +95,6 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
                         result: 'Draw'
                     }))
                 })
-
 
                 await prisma.game.update({
                     where: {
@@ -96,7 +106,6 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
                 })
             }
         }
-
 
         if (chess.isCheck()) {
             players.forEach((player) => {
@@ -115,9 +124,6 @@ export async function moveHandler(from: string, to: string, gameId: string, sock
                 turn: chess.turn()
             }));
         })
-
-
-
 
         await prisma.move.create({
             data: {
